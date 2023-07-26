@@ -1,6 +1,7 @@
 import argparse
 import locale
 import chardet
+import pdb
 from abc import ABC, abstractmethod
 
 
@@ -85,11 +86,13 @@ class CharacterCounter(Counter):
 
 class CLI:
     def __init__(self):
-        self.parser = argparse.ArgumentParser(description="Byte Counter Tool")
-        self.parser.add_argument("-c", nargs='?', const="-", default=None, help="File to count bytes in")
-        self.parser.add_argument("-l", nargs='?', const="-", default=None, help="File to count lines in")
-        self.parser.add_argument("-w", nargs='?', const="-", default=None, help="File to count words in")
-        self.parser.add_argument("-m", nargs='?', const="-", default=None, help="File to count characters in")
+        self.parser = argparse.ArgumentParser(description="Byte, Line, Word , Character Counter Tool")
+        self.parser.add_argument("file_contents", nargs='?', default=None, help="File to process")
+
+        self.parser.add_argument("-c", nargs='?', const="-", default=None, help="Option to count bytes")
+        self.parser.add_argument("-l", nargs='?', const="-", default=None, help="Option to count lines")
+        self.parser.add_argument("-w", nargs='?', const="-", default=None, help="Option to count words")
+        self.parser.add_argument("-m", nargs='?', const="-", default=None, help="Option to count characters")
 
     def parse_args(self):
         args = self.parser.parse_args()
@@ -115,13 +118,26 @@ class CLI:
             if args.w is not None:
                 word_counter = WordCounter()
                 total_words = word_counter.count(args.w)
-                print(f"Number of lines: {total_words}")
+                print(f"Number of words: {total_words}")
 
         if arg_provided_by_user:
             if args.m is not None:
                 char_counter = CharacterCounter()
                 total_chars = char_counter.count(args.m)
                 print(f"Number of characters: {total_chars}")
+
+        else:
+            # If no options are provided, perform all counts
+            byte_counter = ByteCounter()
+            byte_count = byte_counter.count(args.c)
+
+            line_counter = LineCounter()
+            line_count = line_counter.count(args.l)
+
+            word_counter = WordCounter()
+            word_count = word_counter.count(args.w)
+
+            print(f"{line_count}\t{word_count}\t{byte_count}")
 
 
 if __name__ == "__main__":
