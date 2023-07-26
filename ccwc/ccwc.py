@@ -1,4 +1,6 @@
 import argparse
+import locale
+import chardet
 from abc import ABC, abstractmethod
 
 
@@ -49,12 +51,45 @@ class WordCounter(Counter):
         return word_count
 
 
+class CharacterCounter(Counter):
+    def __init__(self):
+        self.preferred_encoding = None
+
+    @staticmethod
+    def multibyte_encoding():
+        preferred_encoding = locale.getpreferredencoding()
+        multibyte_encodings = ['UTF-16', 'UTF-32', 'UTF-8', 'UTF8', 'UTF']
+        return any(encoding.lower() in preferred_encoding.lower() for encoding in multibyte_encodings)
+
+    def count(self, file_contents):
+        char_count = 0
+        supports_multi_bytes = CharacterCounter.multibyte_encoding()
+        if supports_multi_bytes:
+            try:
+                with open(file_contents, 'rb') as file:
+                    file_data = file.read()
+                    detected_encoding = chardet.detect(file_data)
+                    self.preferred_encoding = detected_encoding['encoding']
+                    decoded_content = file_data.decode(self.preferred_encoding)
+                    char_count = len(decoded_content)
+            except FileNotFoundError:
+                print(f"Error: File not found: {file_contents}")
+            except UnicodeDecodeError:
+                print(f"Error: Unable to decode the file using '{self.preferred_encoding}' encoding.")
+        else:
+            # If multibyte characters are not supported, fall back to ByteCounter for character count
+            byte_counter = ByteCounter()
+            char_count = byte_counter.count(file_contents)
+        return char_count
+
+
 class CLI:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description="Byte Counter Tool")
         self.parser.add_argument("-c", nargs='?', const="-", default=None, help="File to count bytes in")
         self.parser.add_argument("-l", nargs='?', const="-", default=None, help="File to count lines in")
-        self.parser.add_argument("-w", nargs='?', const="-", default=None, help="File to count lines in")
+        self.parser.add_argument("-w", nargs='?', const="-", default=None, help="File to count words in")
+        self.parser.add_argument("-m", nargs='?', const="-", default=None, help="File to count characters in")
 
     def parse_args(self):
         args = self.parser.parse_args()
@@ -81,6 +116,12 @@ class CLI:
                 word_counter = WordCounter()
                 total_words = word_counter.count(args.w)
                 print(f"Number of lines: {total_words}")
+
+        if arg_provided_by_user:
+            if args.m is not None:
+                char_counter = CharacterCounter()
+                total_chars = char_counter.count(args.m)
+                print(f"Number of characters: {total_chars}")
 
 
 if __name__ == "__main__":
