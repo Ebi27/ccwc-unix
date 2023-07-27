@@ -58,9 +58,7 @@ class CharacterCounter(Counter):
     @staticmethod
     def multibyte_encoding():
         preferred_encoding = locale.getpreferredencoding()
-        # print(preferred_encoding)
         multibyte_encodings = ['UTF-16', 'UTF-32', 'UTF-8', 'UTF8', 'UTF', 'cp1252']
-        # print(any(encoding.lower() in preferred_encoding.lower() for encoding in multibyte_encodings))
         return any(encoding.lower() in preferred_encoding.lower() for encoding in multibyte_encodings)
 
     def count(self, file_contents):
@@ -74,7 +72,6 @@ class CharacterCounter(Counter):
                     self.preferred_encoding = detected_encoding['encoding']
                     decoded_content = file_data.decode(self.preferred_encoding)
                     char_count = len(decoded_content)
-                    print(char_count)
             except FileNotFoundError:
                 print(f"Error: File not found: {file_contents}")
             except UnicodeDecodeError:
@@ -88,7 +85,6 @@ class CharacterCounter(Counter):
 
 class CLI:
     def __init__(self):
-        self.file_contents = None
         self.parser = argparse.ArgumentParser(description="Byte, Line, Word , Character Counter Tool")
         self.parser.add_argument("file_contents", nargs='?', default=None, help="File to process")
 
@@ -107,22 +103,22 @@ class CLI:
         if args.c:
             byte_counter = ByteCounter()
             total_bytes = byte_counter.count(args.c)
-            print(f"Number of bytes: {total_bytes}")
+            print(f"Number of bytes: {total_bytes} {args.c}")
 
-        if args.l:
+        elif args.l:
             line_counter = LineCounter()
             total_lines = line_counter.count(args.l)
-            print(f"Number of lines: {total_lines}")
+            print(f"Number of lines: {total_lines} {args.l}")
 
-        if args.w:
+        elif args.w:
             word_counter = WordCounter()
             total_words = word_counter.count(args.w)
-            print(f"Number of words: {total_words}")
+            print(f"Number of words: {total_words} {args.w}")
 
-        if args.m:
+        elif args.m:
             char_counter = CharacterCounter()
             total_chars = char_counter.count(args.m)
-            print(f"Number of characters: {total_chars}")
+            print(f"Number of characters: {total_chars} {args.m}")
 
         else:
             # If no options are provided, perform all counts
