@@ -1,5 +1,7 @@
 import argparse
 import locale
+import sys
+
 import chardet
 from abc import ABC, abstractmethod
 
