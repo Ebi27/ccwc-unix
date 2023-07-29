@@ -1,8 +1,7 @@
 import argparse
 import locale
-import sys
 import chardet
-import os
+import sys
 from abc import ABC, abstractmethod
 
 
@@ -89,78 +88,77 @@ class CLI:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description="Byte, Line, Word, Character Counter Tool")
         self.parser.add_argument("file_contents", nargs='?', default=None, help="File to process")
-        self.shared_args = [
-            ("file_contents", {"help": "File to process"}),
-            ("-c", {"nargs": '?', "const": "-", "default": None, "help": "Option to count bytes"}),
-            ("-l", {"nargs": '?', "const": "-", "default": None, "help": "Option to count lines"}),
-            ("-w", {"nargs": '?', "const": "-", "default": None, "help": "Option to count words"}),
-            ("-m", {"nargs": '?', "const": "-", "default": None, "help": "Option to count characters"})
-        ]
-        self.script_path = os.path.abspath(__file__)
-
-        # Add arguments using the shared_args list
-        for arg_name, arg_options in self.shared_args:
-            self.parser.add_argument(arg_name, **arg_options)
+        self.parser.add_argument("-c", nargs='?', const="-", default=None, help="Option to count bytes")
+        self.parser.add_argument("-l", nargs='?', const="-", default=None, help="Option to count lines")
+        self.parser.add_argument("-w", nargs='?', const="-", default=None, help="Option to count words")
+        self.parser.add_argument("-m", nargs='?', const="-", default=None, help="Option to count characters")
 
     def parse_args(self):
         args = self.parser.parse_args()
         return args
 
-    def run_single_counter(self, get_counter, cli_option, count_label):
-        counter = get_counter()
-        total_count = counter.count(cli_option)
-        print(f"Number of {count_label}: {total_count} {cli_option}")
-
     def run(self):
         args = self.parse_args()
 
-        if not sys.stdin.isatty():  # Check if there's input from a pipe (e.g., "cat test.txt | python ccwc.py -c")
-            # Read input from standard input (piped content)
-            stdin_content = sys.stdin.read()
+        if not sys.stdin.isatty() and not args.file_contents:
+            # Read input from standard input (piped content) line by line
+            total_lines = 0
+            total_bytes = 0
+            total_words = 0
+            total_chars = 0
 
-            if args.c:
-                # Count bytes using the ByteCounter and pass stdin_content as the option
-                self.run_single_counter(ByteCounter, stdin_content, args.c)
-            elif args.l:
-                # Count lines using the LineCounter and pass stdin_content as the option
-                self.run_single_counter(LineCounter, stdin_content, args.l)
-            elif args.w:
-                # Count words using the WordCounter and pass stdin_content as the option
-                self.run_single_counter(WordCounter, stdin_content, args.w)
-            elif args.m:
-                # Count characters using the CharacterCounter and pass stdin_content as the option
-                self.run_single_counter(CharacterCounter, stdin_content, args.m)
-        else:
-            # If there's no input from a pipe, handle the script with regular arguments
-            if not any([args.c, args.l, args.w, args.m]):
-                # If no options are provided, perform all counts
-                byte_counter = ByteCounter()
-                line_counter = LineCounter()
-                word_counter = WordCounter()
-
-                if args.file_contents:
-                    # Perform counts on the specified file
-                    total_bytes = byte_counter.count(args.file_contents)
-                    total_lines = line_counter.count(args.file_contents)
-                    total_words = word_counter.count(args.file_contents)
-                    print(f"{total_bytes}\t{total_lines}\t{total_words} {args.file_contents}")
-                else:
-                    # Read from standard input and perform counts
-                    for line in sys.stdin:
-                        total_bytes = byte_counter.count(line)
-                        total_lines = line_counter.count(line)
-                        total_words = word_counter.count(line)
-                        print(f"{total_bytes}\t{total_lines}\t{total_words} {line}", end="")
-            else:
-                # Perform individual counts based on the provided options
-                if args.c:
-                    self.run_single_counter(ByteCounter, args.file_contents, args.c)
+            for line in sys.stdin:
                 if args.l:
-                    self.run_single_counter(LineCounter, args.file_contents, args.l)
+                    total_lines += 1
+                if args.c:
+                    total_bytes += len(line.encode())
                 if args.w:
-                    self.run_single_counter(WordCounter, args.file_contents, args.w)
+                    total_words += len(line.split())
                 if args.m:
-                    self.run_single_counter(CharacterCounter, args.file_contents, args.m)
+                    total_chars += len(line)
+
+            if args.l:
+                print(f"Number of lines: {total_lines}")
+            if args.c:
+                print(f"Number of bytes: {total_bytes}")
+            if args.w:
+                print(f"Number of words: {total_words}")
+            if args.m:
+                print(f"Number of characters: {total_chars}")
+
+        elif args.file_contents:
+            # If file_contents is provided, perform counts on the specified file
+            if args.l:
+                line_counter = LineCounter()
+                total_lines = line_counter.count(args.file_contents)
+                print(f"Number of lines: {total_lines} {args.file_contents}")
+            if args.c:
+                byte_counter = ByteCounter()
+                total_bytes = byte_counter.count(args.file_contents)
+                print(f"Number of bytes: {total_bytes} {args.file_contents}")
+            if args.w:
+                word_counter = WordCounter()
+                total_words = word_counter.count(args.file_contents)
+                print(f"Number of words: {total_words} {args.file_contents}")
+            if args.m:
+                char_counter = CharacterCounter()
+                total_chars = char_counter.count(args.file_contents)
+                print(f"Number of characters: {total_chars} {args.file_contents}")
+
+        elif not any([args.c, args.l, args.w, args.m]) and args.file_contents:
+            # If no options are provided, perform all counts
+            byte_counter = ByteCounter()
+            line_counter = LineCounter()
+            word_counter = WordCounter()
+
+            total_bytes = byte_counter.count(args.file_contents)
+            total_lines = line_counter.count(args.file_contents)
+            total_words = word_counter.count(args.file_contents)
+
+            print(f"{total_bytes}\t{total_lines}\t{total_words} {args.file_contents}")
+
+        else:
+            print("Please provide a valid option or filename.")
 
 
 if __name__ == "__main__":
