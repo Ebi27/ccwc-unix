@@ -1,0 +1,7 @@
+# Created by pytest automatically.
+
+# Ignore pytest cache and Python bytecode
+.pytest_cache/
+__pycache__/
+
+

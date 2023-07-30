@@ -88,10 +88,10 @@ class CLI:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description="Byte, Line, Word, Character Counter Tool")
         self.parser.add_argument("file_contents", nargs='?', default=None, help="File to process")
-        self.parser.add_argument("-c", nargs='?', const="-", default=None, help="Option to count bytes")
-        self.parser.add_argument("-l", nargs='?', const="-", default=None, help="Option to count lines")
-        self.parser.add_argument("-w", nargs='?', const="-", default=None, help="Option to count words")
-        self.parser.add_argument("-m", nargs='?', const="-", default=None, help="Option to count characters")
+        self.parser.add_argument("-c", action="store_true", help="Option to count bytes")
+        self.parser.add_argument("-l", action="store_true", help="Option to count lines")
+        self.parser.add_argument("-w", action="store_true", help="Option to count words")
+        self.parser.add_argument("-m", action="store_true", help="Option to count characters")
 
     def parse_args(self):
         args = self.parser.parse_args()
@@ -129,6 +129,7 @@ class CLI:
         elif args.file_contents:
             # If file_contents is provided, perform counts on the specified file
             if args.l:
+                print("File contents:", args.file_contents)  # debugging in process
                 line_counter = LineCounter()
                 total_lines = line_counter.count(args.file_contents)
                 print(f"Number of lines: {total_lines} {args.file_contents}")
@@ -164,3 +165,5 @@ class CLI:
 if __name__ == "__main__":
     cli = CLI()
     cli.run()
+
+

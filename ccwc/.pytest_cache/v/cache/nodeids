@@ -1,0 +1,7 @@
+[
+  "ccwc_test.py::test_correct_count_values",
+  "ccwc_test.py::test_correct_count_values_with_file",
+  "ccwc_test.py::test_input_redirection",
+  "ccwc_test.py::test_standard_input_pipes",
+  "ccwc_test.py::test_valid_and_invalid_file_names"
+]

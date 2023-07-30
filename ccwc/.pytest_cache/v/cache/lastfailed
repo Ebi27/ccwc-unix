@@ -1,0 +1,5 @@
+{
+  "ccwc_test.py::test_correct_count_values": true,
+  "ccwc_test.py::test_correct_count_values_with_file": true,
+  "ccwc_test.py::test_input_redirection": true
+}
