@@ -90,3 +90,35 @@ def test_valid_and_invalid_file_names():
         assert e.returncode != 0
         assert "Error: Please provide a valid file name." in e.stderr
 
+
+def test_line_count_with_valid_file():
+    # Test valid file name with '-l' option (line count)
+    process = subprocess.Popen(['python', 'ccwc.py', '-l', 'test_sample.txt'], stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, text=True)
+    stdout, stderr = process.communicate()
+    assert process.returncode == 0
+    assert stdout.strip().endswith(f"Number of lines: 2 test_sample.txt")
+
+
+def test_character_count_with_multibyte_encoding():
+    # Test character count with a file containing multibyte characters
+    with open('test_multibyte.txt', 'w', encoding='utf-8') as file:
+        file.write("こんにちは、世界！")
+
+    try:
+        process = subprocess.Popen(['python', 'ccwc.py', 'test_multibyte.txt'], stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate()
+        assert process.returncode == 0
+        assert stdout.strip() == "Number of characters: 8 test_multibyte.txt"
+
+    except Exception as e:
+        print("Error:", e)
+        with open('test_multibyte.txt', 'r', encoding='utf-8') as file:
+            file_contents = file.read()
+        print("File contents:", repr(file_contents))
+
+    # Clean up the test file
+    import os
+    os.remove('test_multibyte.txt')
+
