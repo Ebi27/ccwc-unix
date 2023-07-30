@@ -36,8 +36,20 @@ def test_input_redirection():
 
 
 def test_standard_input_pipes():
-    # Test reading input from standard input using pipes
-    pass
+    # Input data to be passed to ccwc.py through standard input using pipes
+    input_data = "The quick brown fox jumps over the lazy dog.\nThis is a test input.\n"
+
+    # Use input redirection to pass the input_data to ccwc.py via standard input
+    process = subprocess.Popen(['python', 'ccwc.py', '-l'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = process.communicate(input=input_data)
+
+    # Debugging in process
+    print("stdout:", stdout)
+    print("stderr:", stderr)
+
+    # Assert the output matches the expected result
+    assert process.returncode == 0
+    assert stdout.strip() == "Number of lines: 2"
 
 
 def test_valid_and_invalid_file_names():
