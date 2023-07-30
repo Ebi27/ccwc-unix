@@ -8,13 +8,13 @@ WORKDIR /ccwc
 COPY ccwc.py /ccwc/ccwc.py
 COPY ccwc_test.py /ccwc/ccwc_test.py
 
-# Copy ccwc.py's additional file
+# Copy additional files
 COPY test.txt /ccwc/test.txt
-COPY test_sample.txt /ccws/test_sample.txt
+COPY test_sample.txt /ccwc/test_sample.txt
 
 # Install required Python packages (chardet)
 RUN pip install chardet
 RUN pip install pytest
 
-# Set the entry point to run the ccwc.py script when the container starts
-ENTRYPOINT ["python", "./ccwc.py"]
+# Set a default command for the container
+CMD ["pytest", "ccwc_test.py"]
