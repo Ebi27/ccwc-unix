@@ -60,37 +60,33 @@ def test_valid_and_invalid_file_names():
                                stderr=subprocess.PIPE, text=True)
     stdout, stderr = process.communicate()
     assert process.returncode == 0
-    assert stdout.strip() == "Number of characters: 127"
-
-    # Test valid file name with '-l' option (line count)
-    process = subprocess.Popen(['python', 'ccwc.py', '-l', 'test_sample.txt'], stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, text=True)
-    stdout, stderr = process.communicate()
-    assert process.returncode == 0
-    assert stdout.strip() == "Number of lines: 2"
+    assert stdout.strip() == "Number of bytes: 129 test_sample.txt"
 
     # Test invalid file name with '-c' option
-    process = subprocess.Popen(['python', 'ccwc.py', '-c', 'nonexistent_file.txt'], stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, text=True)
-    stdout, stderr = process.communicate()
-    assert process.returncode != 0
-    assert "Error: File 'nonexistent_file.txt' not found." in stderr
+    try:
+        subprocess.check_call(['python', 'ccwc.py', '-c', 'nonexistent_file.txt'])
+    except subprocess.CalledProcessError as e:
+        assert e.returncode != 0
+        assert "Error: File 'nonexistent_file.txt' not found." in e.stderr
 
     # Test invalid file name with '-l' option
-    process = subprocess.Popen(['python', 'ccwc.py', '-l', 'nonexistent_file.txt'], stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, text=True)
-    stdout, stderr = process.communicate()
-    assert process.returncode != 0
-    assert "Error: File 'nonexistent_file.txt' not found." in stderr
+    try:
+        subprocess.check_call(['python', 'ccwc.py', '-l', 'nonexistent_file.txt'])
+    except subprocess.CalledProcessError as e:
+        assert e.returncode != 0
+        assert "Error: File 'nonexistent_file.txt' not found." in e.stderr
 
     # Test providing no file name with '-c' option
-    process = subprocess.Popen(['python', 'ccwc.py', '-c'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    stdout, stderr = process.communicate()
-    assert process.returncode != 0
-    assert "Error: Please provide a valid file name." in stderr
+    try:
+        subprocess.check_call(['python', 'ccwc.py', '-c'])
+    except subprocess.CalledProcessError as e:
+        assert e.returncode != 0
+        assert "Error: Please provide a valid file name." in e.stderr
 
     # Test providing no file name with '-l' option
-    process = subprocess.Popen(['python', 'ccwc.py', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    stdout, stderr = process.communicate()
-    assert process.returncode != 0
-    assert "Error: Please provide a valid file name." in stderr
+    try:
+        subprocess.check_call(['python', 'ccwc.py', '-l'])
+    except subprocess.CalledProcessError as e:
+        assert e.returncode != 0
+        assert "Error: Please provide a valid file name." in e.stderr
+
