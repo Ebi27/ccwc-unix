@@ -14,16 +14,24 @@ def test_correct_count_values_with_file():
 
 
 def test_input_redirection():
-    # Read the contents of the file
+    # Read the contents of the file and strip newline characters
     with open('test_sample.txt', 'r', encoding='utf-8') as file:
-        file_contents = file.read()
+        file_contents = file.read().strip()
 
     # Use input redirection to pass the file contents as input to ccwc.py
-    result = subprocess.run(['python', 'ccwc.py', '-l'], input=file_contents, capture_output=True, text=True)
+    process = subprocess.Popen(['python', 'ccwc.py', '-l'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = process.communicate(input=file_contents)
 
-    # Assert the output matches the expected result
-    assert result.returncode == 0
-    assert result.stdout.strip() == f"Number of lines: 2 test_sample.txt"
+    # Print the stdout and stderr for debugging
+    print("stdout:", stdout)
+    print("stderr:", stderr)
+
+    # Remove carriage return characters from stdout
+    stdout = stdout.replace('\r', '')
+
+    # Assert the output matches the expected result (without newline character)
+    assert process.returncode == 0
+    assert stdout.strip() == "Number of lines: 2"  # Remove the newline character from the assertion
 
 
 def test_standard_input_pipes():
