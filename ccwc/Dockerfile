@@ -12,6 +12,7 @@ COPY test.txt /ccwc/test.txt
 
 # Install required Python packages (chardet)
 RUN pip install chardet
+RUN pip install -U pytest
 
 # Set the entry point to run the ccwc.py script when the container starts
 ENTRYPOINT ["python", "./ccwc.py"]
