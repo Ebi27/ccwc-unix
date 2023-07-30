@@ -4,13 +4,14 @@ from ccwc import ByteCounter
 
 def test_correct_count_values_with_file():
     # Test correct count values when providing valid file name and option
-    with open('test_sample.txt', 'r', encoding='utf-8') as file:
+    with open('test_sample.txt', 'rb') as file:
         file_contents = file.read()
-
+    # Debugging in Process
+    print("file_contents:", repr(file_contents))
     byte_counter = ByteCounter()
     byte_count = byte_counter.count('test_sample.txt')
 
-    assert byte_count == len(file_contents.encode('utf-8'))
+    assert byte_count == len(file_contents)
 
 
 def test_input_redirection():
