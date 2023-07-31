@@ -6,8 +6,6 @@ def test_correct_count_values_with_file():
     # Test correct count values when providing valid file name and option
     with open('test_sample.txt', 'rb') as file:
         file_contents = file.read()
-    # Debugging in Process
-    print("file_contents:", repr(file_contents))
     byte_counter = ByteCounter()
     byte_count = byte_counter.count('test_sample.txt')
 
@@ -23,10 +21,6 @@ def test_input_redirection():
     process = subprocess.Popen(['python', 'ccwc.py', '-l'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, text=True)
     stdout, stderr = process.communicate(input=file_contents)
-
-    # Print the stdout and stderr for debugging
-    print("stdout:", stdout)
-    print("stderr:", stderr)
 
     # Remove carriage return characters from stdout
     stdout = stdout.replace('\r', '')
@@ -44,10 +38,6 @@ def test_standard_input_pipes():
     process = subprocess.Popen(['python', 'ccwc.py', '-l'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, text=True)
     stdout, stderr = process.communicate(input=input_data)
-
-    # Debugging in process
-    print("stdout:", stdout)
-    print("stderr:", stderr)
 
     # Assert the output matches the expected result
     assert process.returncode == 0
@@ -121,4 +111,3 @@ def test_character_count_with_multibyte_encoding():
     # Clean up the test file
     import os
     os.remove('test_multibyte.txt')
-
